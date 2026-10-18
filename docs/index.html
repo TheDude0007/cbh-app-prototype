@@ -1125,7 +1125,7 @@ function doorPage(){
 
 /* ---------- modes and controls */
 function setMode(m){
-  S.mode=m;$('#fanView').classList.toggle('on',m==='fan');$('#ownerView').classList.toggle('on',m==='owner');
+  S.mode=m;if(m!=='fan')terr=null;$('#fanView').classList.toggle('on',m==='fan');$('#ownerView').classList.toggle('on',m==='owner');
   $$('[data-act="mode"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===m)));
   if(m==='owner'){renderOwner();return;}
   renderFan(true);

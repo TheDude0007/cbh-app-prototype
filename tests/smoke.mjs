@@ -2,7 +2,6 @@
 // Usage: npm test            (checks production: Vercel deep, GitHub Pages parity)
 //        npm test -- <url>   (deep-checks a single arbitrary URL, e.g. a PR preview)
 import { chromium } from 'playwright';
-import fs from 'node:fs';
 
 const arg = process.argv[2];
 const SITES = arg
@@ -11,9 +10,6 @@ const SITES = arg
       vercel: 'https://cbh-app-prototype.vercel.app/',
       pages: 'https://thedude0007.github.io/cbh-app-prototype/',
     };
-
-const SHOT_DIR = new URL('../test-results/', import.meta.url).pathname;
-fs.mkdirSync(SHOT_DIR, { recursive: true });
 
 const results = [];
 function log(ok, label, detail) {
@@ -111,7 +107,6 @@ async function run(browser, name, url, { deep }) {
   log(pageErrors.length === 0, `[${name}] no uncaught JS errors`, pageErrors.slice(0, 5).join(' | '));
   log(failedRequests.length === 0, `[${name}] no failed network requests`, failedRequests.slice(0, 5).join(' | '));
 
-  await page.screenshot({ path: `${SHOT_DIR}/${name}-final.png` });
   await context.close();
 }
 
