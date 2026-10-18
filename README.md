@@ -33,6 +33,8 @@ Both HTML files are single self-contained pages — all CSS/JS inline, no extern
 
 **Add to Home Screen:** `docs/index.html` is a real installable PWA. On Android/Chrome/desktop Chrome, an install icon appears next to the bell once the browser fires its install prompt (tap it to install directly). On iOS Safari, which has no install-prompt API, the same icon opens a 3-step instruction sheet (Share → Add to Home Screen → Add) using the app's existing sheet UI. `cbh-app-prototype.html` intentionally has none of this — it's the lighter embed-style copy.
 
+**Visual identity:** display text (titles, kickers, countdowns, tab labels) uses Unbounded, a bold geometric display face loaded from Google Fonts — kept separate from the Archivo body font so headings carry real character instead of reading as one flat typographic voice. The bottom tab bar is a floating glass pill with a sliding glow indicator (JS-positioned via `positionTabIndicator()`) rather than a flat edge-to-edge row. The "Now playing" panel layers an ambient canvas laser sweep (`#lasers`, mirrors the lifecycle of the existing `#terrain` wireframe — same start/stop/reduced-motion pattern) behind the terrain wireframe. The existing pointer-tilt holographic sheen (originally ticket/flyer cards only) now also covers the Multipass rail cards and the hero photo. Artifact coins got an animated holographic ring.
+
 ## For a coding agent picking this up
 
 - The **site** has no build step and no dependencies — `docs/` is plain HTML, don't go looking for a bundler.

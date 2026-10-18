@@ -16,6 +16,9 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800;900&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CBH">
@@ -30,6 +33,8 @@
   --good:#1A7A50;--bad:#C2304A;--warn:#8A5A00;
   --shadow:0 18px 48px rgba(20,14,46,.18);
   --font:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --font-display:'Unbounded',var(--font);
+  --glass:rgba(255,255,255,.62);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root{
@@ -38,6 +43,7 @@
   --ink:#F4EEFC;--ink-2:#C3B4EC;--ink-3:#9D8FCB;
   --line:rgba(244,238,252,.12);--line-strong:rgba(244,238,252,.26);
   --uv-ink:#B79BFF;--alpen-ink:#F07AB0;--good:#4CC48D;--bad:#FF6B85;--warn:#F2B84B;
+  --glass:rgba(20,14,46,.58);
   --shadow:0 18px 48px rgba(0,0,0,.5);
 }}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -49,6 +55,7 @@ ul,ol{list-style:none}
 svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 :focus-visible{outline:2px solid var(--uv-ink);outline-offset:2px;border-radius:8px}
 .num{font-variant-numeric:tabular-nums}
+.countdown.num{font-family:var(--font-display);font-weight:800;letter-spacing:.02em}
 .muted{color:var(--ink-2)}
 .small{font-size:13px}
 .fine{font-size:12px;color:var(--ink-3);line-height:1.45}
@@ -59,7 +66,7 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 .pad{padding:16px 18px 28px}
 
 /* Display type: the widest, heaviest Archivo, used for names of shows and tiers */
-.display{font-stretch:125%;font-weight:850;font-size:30px;line-height:.98;letter-spacing:-.015em}
+.display{font-family:var(--font-display);font-stretch:125%;font-weight:850;font-size:30px;line-height:.98;letter-spacing:-.015em}
 .display.sm{font-size:24px}
 .h1{font-stretch:125%;font-weight:850;font-size:24px;letter-spacing:-.015em}
 
@@ -121,10 +128,16 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 @media (max-width:900px){.side-notes{display:none}}
 @media (max-width:560px){#fanView{padding:0}.phone{width:100%;height:100%;border:0;border-radius:0;box-shadow:none}}
 
-.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--bg);padding:6px 4px 8px}
+.tabbar{flex:none;position:relative;display:grid;grid-template-columns:repeat(5,1fr);margin:0 10px calc(8px + env(safe-area-inset-bottom));padding:7px 4px 9px;border-radius:22px;background:var(--glass);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border:1px solid var(--line-strong);box-shadow:0 14px 34px rgba(20,14,46,.22),inset 0 1px 0 rgba(255,255,255,.1)}
+.tab-indicator{position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:16px;background:linear-gradient(135deg,var(--uv),var(--alpen));opacity:.16;box-shadow:0 0 22px rgba(123,69,224,.5),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .45s cubic-bezier(.34,1.56,.64,1),width .45s cubic-bezier(.34,1.56,.64,1);pointer-events:none;z-index:0}
+.tabbar button{position:relative;z-index:1;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.tabbar button:active{transform:scale(.92)}
+.tabbar button span[data-ic]{display:inline-flex;transition:transform .4s cubic-bezier(.34,1.56,.64,1),filter .3s}
+.tabbar button[aria-current="page"] span[data-ic]{transform:translateY(-3px) scale(1.12);filter:drop-shadow(0 0 7px var(--uv))}
+@media(prefers-reduced-motion:reduce){.tab-indicator,.tabbar button,.tabbar button span[data-ic]{transition:none}}
 .tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0 2px;font-size:12px;font-weight:600;color:var(--ink-3)}
 .tabbar svg{width:23px;height:23px}
-.tabbar button[aria-current="page"]{color:var(--uv-ink)}
+.tabbar button[aria-current="page"]{color:var(--uv-ink);font-family:var(--font-display);font-weight:700}
 
 .topbar{display:flex;align-items:center;gap:8px;padding:10px 10px 6px;position:sticky;top:0;background:var(--bg);z-index:5}
 .topbar-t{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -137,7 +150,7 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 .hero-word{font-stretch:125%;font-weight:850;font-size:16px;color:var(--snow);letter-spacing:-.01em;text-shadow:0 1px 10px rgba(20,14,46,.6)}
 .next-card{position:relative;z-index:2;margin:-96px 16px 0;padding:18px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
 .next-card .display{margin:4px 0 6px}
-.kicker{font-size:13px;font-weight:650;color:var(--alpen-ink)}
+.kicker{font-family:var(--font-display);letter-spacing:.03em;text-transform:uppercase;font-size:12px;font-weight:650;color:var(--alpen-ink)}
 .next-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .countdown{font-stretch:125%;font-weight:850;font-size:24px;letter-spacing:-.01em;color:var(--alpen-ink)}
 .section-h{display:flex;align-items:baseline;justify-content:space-between;padding:26px 18px 10px}
@@ -296,7 +309,7 @@ canvas.qr{border-radius:14px;background:#fff}
 .avatar{width:58px;height:58px;border-radius:50%;background:var(--uv);color:#fff;display:grid;place-items:center;font-stretch:125%;font-weight:850;font-size:22px}
 .list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 18px;border-top:1px solid var(--line)}
 .list-row span:first-child{min-width:0}
-.list-h{padding:20px 18px 8px;font-size:13px;font-weight:650;color:var(--ink-2)}
+.list-h{font-family:var(--font-display);letter-spacing:.03em;text-transform:uppercase;padding:20px 18px 8px;font-size:12px;font-weight:650;color:var(--ink-2)}
 .switch{width:48px;height:29px;border-radius:999px;background:var(--line-strong);position:relative;flex:none}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;transition:left .18s}
 .switch[aria-checked="true"]{background:var(--uv)}
@@ -470,30 +483,35 @@ html.playing{--beat:.857s}
 @keyframes kick{0%{transform:scale(1.3);opacity:.95}60%,100%{transform:scale(.85);opacity:.25}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes coin{to{transform:rotateY(360deg)}}
-.np{margin:22px 16px 0;border-radius:24px;background:var(--night);color:var(--snow);overflow:hidden;border:1px solid var(--line)}
+.np{position:relative;margin:22px 16px 0;border-radius:24px;background:var(--night);color:var(--snow);overflow:hidden;border:1px solid var(--line)}
+.np>*:not(#lasers){position:relative;z-index:1}
 .np-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:16px 16px 0}
-.np-title{font-stretch:125%;font-weight:900;font-size:28px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;margin:4px 0}
+.np-title{font-family:var(--font-display);font-stretch:125%;font-weight:900;font-size:28px;line-height:1;letter-spacing:-.02em;text-transform:uppercase;margin:4px 0}
 .np-ctl{display:flex;gap:6px}
 .icon-btn.snowb{color:var(--snow);background:rgba(244,238,252,.1)}
 #terrain{display:block;width:100%;height:170px;touch-action:pan-y;cursor:grab}
+#lasers{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;opacity:.6;pointer-events:none}
 .np-frame,.sc-frame{display:block;width:100%;border:0;background:#000}
 .sc-frame{border-radius:16px}
 .np-note{padding:10px 16px 14px;color:var(--lilac)}
 .sc-pending{display:grid;gap:8px;justify-items:start;padding:16px;border:1px dashed var(--line-strong);border-radius:16px;background:var(--surface)}
 .rail{display:flex;gap:12px;overflow-x:auto;padding:4px 18px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-.mp-card{flex:none;width:164px;scroll-snap-align:start;display:grid;gap:6px;align-content:start;text-decoration:none;color:var(--ink);padding:8px 8px 12px;border:1px solid var(--line);border-radius:18px;background:var(--surface);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out}
+.mp-card{position:relative;flex:none;width:164px;scroll-snap-align:start;display:grid;gap:6px;align-content:start;text-decoration:none;color:var(--ink);padding:8px 8px 12px;border:1px solid var(--line);border-radius:18px;background:var(--surface);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .2s ease-out;overflow:hidden}
 .mp-img{display:block;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--night) var(--hero) 50% 45%/cover no-repeat}
 .mp-img img{width:100%;height:100%;object-fit:cover;display:block}
 .mp-card b{font-size:14px;line-height:1.25}
 .mp-card .chip{justify-self:start}
 .flyer[data-tilt],.ticket[data-tilt]{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out}
 .ticket[data-tilt]{position:relative}
-.ticket[data-tilt]::after,.flyer[data-tilt]::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(110deg,transparent 35%,rgba(195,157,250,.24) 47%,rgba(240,122,176,.2) 53%,transparent 65%);background-size:260% 100%;background-position:var(--mx,50%) 0;mix-blend-mode:screen}
+.ticket[data-tilt]::after,.flyer[data-tilt]::after,.mp-card::after,.hero-img::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(110deg,transparent 35%,rgba(195,157,250,.24) 47%,rgba(240,122,176,.2) 53%,transparent 65%);background-size:260% 100%;background-position:var(--mx,50%) 0;mix-blend-mode:screen}
 .coin-wrap{display:grid;justify-items:center;gap:8px;width:104px;flex:none;perspective:600px;scroll-snap-align:start}
 .coin{position:relative;width:86px;height:86px;transform-style:preserve-3d}
 .face{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;align-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;color:var(--snow);background:var(--night);box-shadow:inset 0 0 0 3px var(--lilac),inset 0 0 0 7px var(--night),inset 0 0 0 8px rgba(240,122,176,.75)}
 .face svg{position:absolute;inset:0;width:100%;height:100%;stroke:rgba(195,157,250,.35);stroke-width:2}
+.face::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(123,69,224,0),rgba(240,122,176,.45),rgba(123,69,224,0) 60%);mix-blend-mode:screen;animation:holoSpin 3.5s linear infinite;pointer-events:none}
+@keyframes holoSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.face::before{animation:none}}
 .face b{position:relative;font-stretch:125%;font-weight:900;font-size:26px}
 .face.back{transform:rotateY(180deg);background:var(--uv);font-size:12px;gap:2px}
 .face.back b{font-size:15px}
@@ -538,7 +556,7 @@ html.playing{--beat:.857s}
       <div class="phone">
         <div class="app" id="app">
           <div class="app-body" id="appBody"></div>
-          <nav class="tabbar" id="tabbar" aria-label="App sections">
+          <nav class="tabbar" id="tabbar" aria-label="App sections"><span class="tab-indicator" id="tabIndicator" aria-hidden="true"></span>
             <button data-act="tab" data-v="drops" aria-current="page"><span data-ic="drops"></span>Afters</button>
             <button data-act="tab" data-v="calendar"><span data-ic="cal"></span>Calendar</button>
             <button data-act="tab" data-v="tickets"><span data-ic="ticket"></span>Tickets</button>
@@ -778,7 +796,8 @@ function renderFan(keep){
   const screens={drops:drops,calendar:calScreen,tickets:ticketsScreen,perks:perksScreen,me:meScreen};
   appBody.innerHTML=top?eventScreen(top.id):screens[S.tab]();
   $$('#tabbar button').forEach(b=>{if(b.dataset.v===S.tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-  initQR();tick();fitTitles(appBody);placeFx();startTerrain();wireSC();syncInstallBtn();
+  positionTabIndicator();
+  initQR();tick();fitTitles(appBody);placeFx();startTerrain();startLasers();wireSC();syncInstallBtn();positionTabIndicator();
   appBody.scrollTop=keep?sc:0;
 }
 function flyer(e){
@@ -928,7 +947,7 @@ function allArtists(){const ids=[];EVENTS.forEach(e=>e.lineup.forEach(l=>{if(ids
 function scQueue(){return allArtists().filter(a=>A[a].sc).map(a=>({id:a,name:A[a].name,url:A[a].sc,why:A[a].why}));}
 function nowPlaying(){
   const q=scQueue();if(!q.length)return '';const cur=q[S.sc.i%q.length],total=allArtists().length;
-  return '<section class="np"><div class="np-head"><div><p class="small lilac">Now playing in the app</p><h2 class="np-title">'+esc(cur.name)+'</h2><p class="small lilac np-why">'+esc(cur.why)+'</p></div><div class="np-ctl"><button class="icon-btn snowb" data-act="scprev" aria-label="Previous artist">'+I.back+'</button><button class="icon-btn snowb" data-act="scnext" aria-label="Next artist">'+I.fwd+'</button></div></div>'
+  return '<section class="np"><canvas id="lasers" aria-hidden="true"></canvas><div class="np-head"><div><p class="small lilac">Now playing in the app</p><h2 class="np-title">'+esc(cur.name)+'</h2><p class="small lilac np-why">'+esc(cur.why)+'</p></div><div class="np-ctl"><button class="icon-btn snowb" data-act="scprev" aria-label="Previous artist">'+I.back+'</button><button class="icon-btn snowb" data-act="scnext" aria-label="Next artist">'+I.fwd+'</button></div></div>'
    +'<canvas id="terrain" role="img" aria-label="3D wireframe of Colorado peaks that pulses with the music. Drag to turn it."></canvas>'
    +scFrame(cur.url,'np-frame',300,cur.name)
    +'<p class="fine np-note">The rotation builds itself from upcoming and past lineups: each artist with a SoundCloud page joins, one track at a time. '+q.length+' of '+total+' artists linked in this demo. Drag the peaks to turn them.</p></section>';
@@ -967,6 +986,32 @@ function placeFx(){
   const h=$('.hero',appBody),fx=$('.logo-fx',appBody);if(!h||!fx)return;
   const W=h.clientWidth+28,H=h.clientHeight+28,s=Math.max(W/713,H/735),ox=(W-713*s)*.5,oy=(H-735*s)*.3;
   fx.style.left=(-14+ox+352*s)+'px';fx.style.top=(-14+oy+352*s)+'px';fx.style.setProperty('--r',(80*s).toFixed(1)+'px');
+}
+let lzr=null;
+function startLasers(){
+  const cv=$('#lasers',appBody);if(!cv){lzr=null;return;}
+  const dpr=Math.min(window.devicePixelRatio||1,2),W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const colors=['#B79BFF','#F07AB0','#6FE3FF'];
+  const beams=colors.map((col,i)=>({col,base:-1.15+i*.18,speed:.35+i*.11,spread:.5+i*.12,phase:i*2.1}));
+  const st={ctx,W,H,t0:performance.now()};lzr=st;
+  const draw=t=>{
+    ctx.clearRect(0,0,W,H);
+    const playing=document.documentElement.classList.contains('playing'),amp=playing?1:.55;
+    const ox=W*.5,oy=H+6;
+    beams.forEach(b=>{
+      const ang=b.base+Math.sin(t*b.speed+b.phase)*b.spread,len=Math.max(W,H)*1.3;
+      const x2=ox+Math.cos(ang)*len,y2=oy+Math.sin(ang)*len;
+      const g=ctx.createLinearGradient(ox,oy,x2,y2);
+      g.addColorStop(0,b.col+'cc');g.addColorStop(1,b.col+'00');
+      ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(x2,y2);
+      ctx.strokeStyle=g;ctx.lineWidth=2.5*amp;ctx.shadowColor=b.col;ctx.shadowBlur=14*amp;ctx.globalAlpha=.55*amp;
+      ctx.stroke();
+    });
+    ctx.globalAlpha=1;
+  };
+  if(reduce){draw(0);return;}
+  const loop=now=>{if(lzr!==st||!cv.isConnected)return;draw((now-st.t0)/1000);requestAnimationFrame(loop);};requestAnimationFrame(loop);
 }
 let terr=null;
 function startTerrain(){
@@ -1130,7 +1175,7 @@ function doorPage(){
 
 /* ---------- modes and controls */
 function setMode(m){
-  S.mode=m;if(m!=='fan')terr=null;$('#fanView').classList.toggle('on',m==='fan');$('#ownerView').classList.toggle('on',m==='owner');
+  S.mode=m;if(m!=='fan'){terr=null;lzr=null;}$('#fanView').classList.toggle('on',m==='fan');$('#ownerView').classList.toggle('on',m==='owner');
   $$('[data-act="mode"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===m)));
   if(m==='owner'){renderOwner();return;}
   renderFan(true);
@@ -1152,6 +1197,8 @@ let deferredInstall=null;
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
 const isStandaloneApp=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 function syncInstallBtn(){const b=$('#installBtn');if(!b)return;b.hidden=isStandaloneApp()||!(deferredInstall||isIOS());}
+function positionTabIndicator(){const bar=$('#tabbar'),ind=$('#tabIndicator'),btn=bar&&bar.querySelector('button[aria-current="page"]');if(!bar||!ind||!btn)return;const bRect=bar.getBoundingClientRect(),tRect=btn.getBoundingClientRect();ind.style.width=tRect.width+'px';ind.style.transform='translateX('+(tRect.left-bRect.left)+'px)';}
+window.addEventListener('resize',()=>positionTabIndicator());
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;syncInstallBtn();});
 window.addEventListener('appinstalled',()=>{deferredInstall=null;syncInstallBtn();banner('push','ColoradoBassHeads','Installed. Find it on your home screen.');});
 function iosInstallSheet(){
@@ -1259,7 +1306,7 @@ document.addEventListener('input',e=>{if(e.target.id==='msg'){S.o.msg=e.target.v
 
 renderFan();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{fitTitles(document);});
-window.addEventListener('resize',()=>{fitTitles(document);placeFx();startTerrain();});
+window.addEventListener('resize',()=>{fitTitles(document);placeFx();startTerrain();startLasers();});
 })();
 </script>
 </body>
