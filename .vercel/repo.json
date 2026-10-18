@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_WbAKtJCCmjxE3LjtTx41cNxmHrtQ",
+      "name": "cbh-app-prototype",
+      "directory": ".",
+      "orgId": "team_cqdi55hJP5UA9TIdC6kCYc4D"
+    }
+  ]
+}
