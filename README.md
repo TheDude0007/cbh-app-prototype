@@ -21,6 +21,8 @@ A clickable prototype of the ColoradoBassHeads fan app and owner portal, built t
 ├── .github/workflows/pages.yml # GitHub Actions: deploys docs/ to Pages on every push to main
 ├── deploy.sh                   # one-command rollout to a fresh GitHub repo (see below)
 ├── vercel.json                 # tells Vercel to serve from docs/
+├── tests/smoke.mjs             # Playwright smoke test — automates the "before you present" checklist below
+├── package.json                 # only for tests/ — the site itself still has no build step
 └── LICENSE-ARCHIVO-OFL.txt     # font license (Archivo, embedded in the HTML)
 ```
 
@@ -28,7 +30,8 @@ Both HTML files are single self-contained pages — all CSS/JS inline, no extern
 
 ## For a coding agent picking this up
 
-- There is no build step and no package.json — don't go looking for one.
+- The **site** has no build step and no dependencies — `docs/` is plain HTML, don't go looking for a bundler.
+- There IS a `package.json`, but it exists only to run the Playwright smoke test in `tests/` — it has nothing to do with deploying the site.
 - All edits happen directly in `docs/index.html` (or `docs/cbh-app-prototype.html`). It's one long HTML file with inline `<style>` and `<script>`.
 - Pushing to `main` auto-deploys both GitHub Pages (via the Actions workflow) and Vercel (the repo is linked — Vercel watches `main` too).
 - If you add a new asset, put it in `docs/` so it ships with the deploy.
@@ -51,11 +54,20 @@ Creates (or reuses) the named public repo, turns on GitHub Pages via Actions, pu
 
 ## Before you present this to the CEO
 
-- [ ] Open the live link on your own phone first — Safari and Chrome both.
+Run the automated check first — it covers the functional items below against both live URLs in about 20 seconds:
+
+```bash
+npm install
+npx playwright install chrome   # first run only
+npm test
+```
+
+It verifies: both sites return 200, the title is correct, tapping Play actually loads a live SoundCloud iframe, the Multipass flyer images resolve for real (direct HTTP checks against the S3 URLs, not just "an `<img>` tag exists"), the Owner portal switch works, the full AI-flyer-read → Publish flow completes, and there are no console or JS errors. A failure prints exactly which check broke.
+
+Then do these by hand — no script can check these for you:
+
+- [ ] Open the live link on your own phone — Safari and Chrome both.
 - [ ] Text yourself the link and confirm the preview card renders (logo + title + description).
-- [ ] Tap Play on a headliner and confirm the SoundCloud player actually loads audio.
-- [ ] Open the Multipass rail and confirm the flyers render.
-- [ ] Switch to the owner portal view and run through the sample flyer-to-show flow.
 - [ ] If presenting on a shared screen, use the Vercel URL (`cbh-app-prototype.vercel.app`) — it's shorter and reads cleaner on a projector than the GitHub Pages path.
 
 ## What's real and what's demo
