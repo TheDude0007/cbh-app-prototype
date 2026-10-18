@@ -12,8 +12,11 @@ A clickable prototype of the ColoradoBassHeads fan app and owner portal, built t
 ```
 .
 ├── docs/                       # the entire site — this is what gets deployed
-│   ├── index.html              # main prototype (canonical, has full OG/share meta)
-│   ├── cbh-app-prototype.html  # earlier build of the same prototype, kept for reference
+│   ├── index.html              # main prototype (canonical, has full OG/share meta, installable PWA)
+│   ├── cbh-app-prototype.html  # earlier build, no icons/manifest — an embed-style copy, not installable
+│   ├── manifest.webmanifest    # PWA manifest — only index.html links to this
+│   ├── sw.js                   # minimal service worker (network-first, cache fallback) for installability
+│   ├── icon-192.png / icon-512.png  # generated from apple-touch-icon.png for the home-screen icon
 │   ├── favicon.png
 │   ├── apple-touch-icon.png
 │   ├── og-image.jpg
@@ -27,6 +30,8 @@ A clickable prototype of the ColoradoBassHeads fan app and owner portal, built t
 ```
 
 Both HTML files are single self-contained pages — all CSS/JS inline, no external calls except to SoundCloud for the embedded players. Open `docs/index.html` directly in a browser to preview locally; no server needed.
+
+**Add to Home Screen:** `docs/index.html` is a real installable PWA. On Android/Chrome/desktop Chrome, an install icon appears next to the bell once the browser fires its install prompt (tap it to install directly). On iOS Safari, which has no install-prompt API, the same icon opens a 3-step instruction sheet (Share → Add to Home Screen → Add) using the app's existing sheet UI. `cbh-app-prototype.html` intentionally has none of this — it's the lighter embed-style copy.
 
 ## For a coding agent picking this up
 
