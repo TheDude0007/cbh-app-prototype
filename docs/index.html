@@ -1152,7 +1152,7 @@ const ACT={
     setTimeout(()=>doDrop(id),450);
   },
   reset:()=>location.reload(),
-  scload:(v,el)=>{const f=document.createElement('iframe');f.className=el.dataset.cls;f.title='SoundCloud player';f.setAttribute('allow','autoplay');f.height=el.dataset.h;f.src=scSrc(el.dataset.url,true,true);el.replaceWith(f);if(f.classList.contains('np-frame'))wireSC();},
+  scload:(v,el)=>{const f=document.createElement('iframe');f.className=el.dataset.cls;f.title='SoundCloud player';f.setAttribute('allow','autoplay; encrypted-media');f.height=el.dataset.h;f.src=scSrc(el.dataset.url,true,true);el.replaceWith(f);if(f.classList.contains('np-frame'))wireSC();},
   scnext:()=>nextArtist(1,false),
   scprev:()=>nextArtist(-1,false),
   coin:(v,el)=>{el.classList.remove('fast');void el.offsetWidth;el.classList.add('fast');buzz(20);setTimeout(()=>el.classList.remove('fast'),1800);},
