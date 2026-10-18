@@ -34,6 +34,30 @@ async function run(browser, name, url, { deep }) {
   const title = await page.title();
   log(title === 'ColoradoBassHeads app prototype', `[${name}] title correct`, title);
 
+  // installable PWA: manifest resolves and is valid, service worker registers,
+  // install UI exists in the DOM (hidden is fine — visibility depends on the
+  // browser firing beforeinstallprompt, which headless Chrome won't do reliably)
+  try {
+    const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href');
+    const manifestResp = await context.request.get(new URL(manifestHref, url).toString());
+    const manifestJson = await manifestResp.json();
+    log(manifestResp.ok() && Array.isArray(manifestJson.icons) && manifestJson.icons.length > 0, `[${name}] PWA manifest resolves`, `${manifestJson.icons?.length || 0} icon(s)`);
+  } catch (e) {
+    log(false, `[${name}] PWA manifest resolves`, String(e));
+  }
+  try {
+    const swState = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return 'unsupported';
+      await new Promise((r) => setTimeout(r, 1500));
+      const reg = await navigator.serviceWorker.getRegistration();
+      return reg ? 'registered' : 'not-registered';
+    });
+    log(swState === 'registered', `[${name}] service worker registers`, swState);
+  } catch (e) {
+    log(false, `[${name}] service worker registers`, String(e));
+  }
+  log((await page.locator('#installBtn').count()) > 0, `[${name}] install button present in DOM`);
+
   if (!deep) {
     log(consoleErrors.length === 0, `[${name}] no console errors`, consoleErrors.slice(0, 3).join(' | '));
     await context.close();
