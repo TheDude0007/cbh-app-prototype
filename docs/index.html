@@ -1277,7 +1277,7 @@ function renderFan(keep){
   appBody.innerHTML=top?(top.s==='thread'?threadScreen(top.id):top.s==='user'?userScreen(top.id):eventScreen(top.id)):(screens[S.tab]||drops)();
   const cur=({me:'profile',perks:'profile',calendar:'drops'})[S.tab]||S.tab;
   $$('#tabbar button').forEach(b=>{if(b.dataset.v===cur)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-  initQR();tick();fitTitles(appBody);placeFx();startTerrain();wireSC();
+  initQR();tick();fitTitles(appBody);placeFx();startTerrain();wireSC();checkBackend();
   appBody.scrollTop=keep?sc:0;
   afterFan(top);
 }
@@ -1364,8 +1364,7 @@ function perksBody(){
 function meScreen(){
   const sw=(k,label,sub)=>'<div class="list-row"><span><b class="strong">'+label+'</b><br><span class="small muted">'+sub+'</span></span><button class="switch" role="switch" aria-checked="'+S.notif[k]+'" aria-label="'+label+'" data-act="toggle" data-v="'+k+'"></button></div>';
   return '<div class="topbar plain"><h1 class="h1">You</h1></div><div class="profile"><div class="avatar">AR</div><div><b class="strong" style="font-size:18px">Alex R.</b><p class="small muted">Member since 2024. 9 afters so far.</p></div></div>'
-   +'<p class="list-h">Alerts</p>'+sw('shows','New shows','Push when an afters is announced')+sw('drops','Location drops','Push and text at drop time')+sw('deals','Deals and giveaways by text','Up to 4 texts a month. Reply STOP to opt out.')
-   +'<p class="list-h">Afters you’ve been to, imported from Multipass</p>'+PAST.slice(0,5).map(p=>'<div class="list-row"><span>'+esc(p[1])+'</span><span class="small muted num">'+p[0]+'</span></div>').join('')
+   +'<p class="list-h">Alerts</p>'+sw('shows','New shows','Push when an afters is announced')+sw('drops','Location drops','Push and text at drop time')+sw('deals','Deals and giveaways by text','Up to 4 texts a month. Reply STOP to opt out.')+'<p class="list-h">Afters you’ve been to, imported from Multipass</p>'+PAST.slice(0,5).map(p=>'<div class="list-row"><span>'+esc(p[1])+'</span><span class="small muted num">'+p[0]+'</span></div>').join('')
    +'<div class="list-row"><button class="link" data-act="delete" style="color:var(--bad)">Delete my account</button></div><p class="fine pad">Demo profile. The show names above come from the public ColoradoBassHeads Multipass page.</p>';
 }
 
@@ -2325,7 +2324,7 @@ function profileScreen(){
   const m=PEOPLE.me,mine=POSTS.filter(p=>p.by===ME&&p.status!=='removed');
   const tabs=[['posts','Posts'],['perks','Perks'],['crew','Crew pay'],['settings','Settings']];
   const body=S.pf==='perks'?'<div class="pf-body">'+perksBody()+'</div>':S.pf==='crew'?crewPay():S.pf==='settings'?settingsBody():gridPosts(mine,true);
-  return '<div class="topbar plain fx"><h1 class="h1">Profile</h1><button class="icon-btn" data-act="shareprofile" aria-label="Share your profile">'+I.share+'</button></div>'
+  return '<div class="topbar plain fx"><h1 class="h1">Profile</h1><button class="icon-btn" data-act="shareprofile" aria-label="Share your profile">'+I.share+'</button></div>'+'<div class="list-row" id="backendRow" hidden><span><b class="strong">Real push notifications</b><br><span class="small muted">Backed by a live server, not a simulation</span></span><button class="btn ghost sm" id="realPushBtn" data-act="realpush">Enable</button></div>'
    +(S.me.done?'':profileNudge())
    +'<div class="pf-head"><label class="pf-av" aria-label="Change your photo">'+av(ME,84)+'<i>'+I.camera+'</i><input type="file" accept="image/*" id="pfPhoto" hidden></label><div><b class="pf-name">'+esc(m.name)+'</b><p class="small muted">@'+esc(m.handle)+(m.city?' · '+esc(m.city):'')+'</p>'+(m.bio?'<p class="pf-bio">'+esc(m.bio)+'</p>':'')+'</div></div>'
    +(m.sounds&&m.sounds.length?'<div class="pf-sounds">'+m.sounds.map(s=>'<span class="chip">'+esc(s)+'</span>').join('')+'</div>':'')
@@ -2834,6 +2833,55 @@ function toggleDemo(force){
   p.classList.toggle('on',on);b.setAttribute('aria-expanded',String(on));
 }
 
+/* ---------- real backend (optional) ----------
+   Update API_BASE to your deployed cbh-backend URL (see github.com/TheDude0007/cbh-backend).
+   Until then this silently no-ops: the health check fails fast, backendLive
+   stays false, and the rest of the demo behaves exactly as it does today. */
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+const API_BASE='http://localhost:4000';
+let backendLive=false,demoFanToken=null;
+async function apiFetch(path,opts={}){
+  const headers={'Content-Type':'application/json',...(opts.headers||{})};
+  if(demoFanToken)headers.Authorization='Bearer '+demoFanToken;
+  const res=await fetch(API_BASE+path,{...opts,headers});
+  if(!res.ok)throw new Error('API '+path+' -> '+res.status);
+  return res.json();
+}
+async function checkBackend(){
+  try{
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),1500);
+    const res=await fetch(API_BASE+'/health',{signal:ctrl.signal});clearTimeout(t);
+    backendLive=res.ok;
+  }catch(_){backendLive=false;}
+  const b=$('#backendRow');if(b)b.hidden=!backendLive;
+}
+function urlBase64ToUint8Array(base64){
+  const pad='='.repeat((4-base64.length%4)%4);
+  const raw=atob((base64+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
+async function enableRealPush(){
+  try{
+    if(!demoFanToken){const d=await apiFetch('/auth/fan/demo',{method:'POST'});demoFanToken=d.token;}
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('Notifications permission was not granted.');return;}
+    const {key}=await apiFetch('/push/vapid-public-key');
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(key)});
+    const j=sub.toJSON();
+    await apiFetch('/push/subscribe',{method:'POST',body:JSON.stringify({endpoint:j.endpoint,keys:j.keys})});
+    toast('Real push notifications enabled.');
+    const btn=$('#realPushBtn');if(btn){btn.textContent='Enabled';btn.disabled=true;}
+  }catch(e){toast('Could not enable push: '+e.message);}
+}
+async function sendRealPublishPush(){
+  if(!backendLive)return;
+  try{
+    if(!demoFanToken){const d=await apiFetch('/auth/fan/demo',{method:'POST'});demoFanToken=d.token;}
+    await apiFetch('/push/demo-notify',{method:'POST',body:JSON.stringify({title:'ColoradoBassHeads',body:'Published. Push sent to 4,218 members',url:'./'})});
+  }catch(_){/* silent — this is a bonus real effect layered on an already-working demo */}
+}
+
 const ACT={
   mode:v=>setMode(v),
   demo:()=>toggleDemo(),
@@ -2888,9 +2936,10 @@ const ACT={
   reveal:(v,el)=>{S.reveal=el.value;},
   publish:()=>{
     S.ns='published';if(EVENTS.indexOf(PENDING)<0){EVENTS.push(PENDING);EVENTS.sort((a,b)=>a.date-b.date);}
-    S.pushQueued=true;renderOwner();toast('Published. Push sent to 4,218 members',true);
+    S.pushQueued=true;renderOwner();toast('Published. Push sent to 4,218 members',true);sendRealPublishPush();
   },
   seeinapp:()=>setMode('fan'),
+  realpush:()=>enableRealPush(),
   copymp:()=>{try{navigator.clipboard.writeText('Altitude Afters\n'+STEPS[1][1]+', doors 2:00 AM, 21+\nGeneral admission $25, VIP $45');}catch(e){}toast('Fields copied. Paste them into the Multipass event form.',true);},
   seg:v=>{S.o.seg=v;renderOwner();},
   fan:v=>{$('#drawer').innerHTML=fanProfile(Number(v));$('#drawerWrap').classList.add('on');const c=$('#drawer .icon-btn');if(c)c.focus();},
