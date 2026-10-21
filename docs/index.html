@@ -2838,7 +2838,7 @@ function toggleDemo(force){
    Until then this silently no-ops: the health check fails fast, backendLive
    stays false, and the rest of the demo behaves exactly as it does today. */
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
-const API_BASE='http://localhost:4000';
+const API_BASE='https://cbh-backend.vercel.app';
 let backendLive=false,demoFanToken=null;
 async function apiFetch(path,opts={}){
   const headers={'Content-Type':'application/json',...(opts.headers||{})};
